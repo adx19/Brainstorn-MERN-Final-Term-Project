@@ -1,19 +1,11 @@
-// src/redux/slices/authSlice.js
 import { createSlice } from "@reduxjs/toolkit";
 
 const initialState = {
-  user: (() => {
-    try {
-      const user = localStorage.getItem("user");
-      return user ? JSON.parse(user) : null;
-    } catch (e) {
-      return null;
-    }
-  })(),
-  token: localStorage.getItem("token") || null,
+  user: null, // now user contains { _id, name, username, email, token }
   isLoading: false,
   error: null,
 };
+
 
 const authSlice = createSlice({
   name: "auth",
@@ -24,11 +16,8 @@ const authSlice = createSlice({
       state.error = null;
     },
     loginSuccess: (state, action) => {
-      state.user = action.payload.user;
-      state.token = action.payload.token;
+      state.user = action.payload;
       state.isLoading = false;
-      localStorage.setItem("token", action.payload.token);
-      localStorage.setItem("user", JSON.stringify(action.payload.user));
     },
     loginFailure: (state, action) => {
       state.isLoading = false;
@@ -36,10 +25,6 @@ const authSlice = createSlice({
     },
     logout: (state) => {
       state.user = null;
-      state.token = null;
-      state.error = null;
-      localStorage.removeItem("token");
-      localStorage.removeItem("user");
     },
     setUser: (state, action) => {
       state.user = action.payload;

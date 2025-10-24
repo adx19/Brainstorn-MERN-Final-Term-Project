@@ -1,49 +1,67 @@
 import User from "../models/user.model.js";
 import bcrypt from "bcryptjs";
-export const signup = async(req, res) => {
-  const {name, username, email, password} = req.body;
+import jwt from "jsonwebtoken";
 
-  if(!name || !username || !email || !password) {
-    return res.status(400).json({msg: "Please enter all required fields"});
+export const signup = async (req, res) => {
+  const { name, username, email, password } = req.body;
+  if (!name || !username || !email || !password) {
+    return res.status(400).json({ msg: "Please enter all required fields" });
   }
 
-  if(password.length < 6) {
-    return res.status(400).json({msg: "Password must be at least 6 characters long"});
-  }
+  if (password.length < 6)
+    return res
+      .status(400)
+      .json({ msg: "Password must be at least 6 characters long" });
 
-  const existinguseremail = await User.findOne({email});
-  const existingusername = await User.findOne({username});
-
-  if(existinguseremail) {
-    return res.status(400).json({msg: "User with this email already exists"});
-  }
-  if(existingusername) {
-    return res.status(400).json({msg: "Username already taken"});
-  }
+  const existingUserEmail = await User.findOne({ email });
+  const existingUsername = await User.findOne({ username });
+  if (existingUserEmail)
+    return res.status(400).json({ msg: "Email already exists" });
+  if (existingUsername)
+    return res.status(400).json({ msg: "Username already taken" });
 
   const salt = await bcrypt.genSalt(10);
-  const hashedpassword = await bcrypt.hash(password, salt);
+  const hashedPassword = await bcrypt.hash(password, salt);
+  const newUser = await User.create({
+    name,
+    username,
+    email,
+    password: hashedPassword,
+  });
 
-
-
-
-  await User.create({name, username, email, password: hashedpassword})
-  res.status(201).json({message: "User created successfully"});
-}
+  res.status(201).json({ user: { id: newUser._id, name, username } });
+};
 
 export const login = async (req, res) => {
-  const {username, password} = req.body;
-  if(!username || !password) {
-    return res.status(400).json({msg: "Please enter all required fields"});
-  }
-  const existinguser = await User.findOne({username});
-  if(!existinguser) {
-    return res.status(400).json({msg: "User with this username does not exist"});
-  }
-  const ismatching = await bcrypt.compare(password, existinguser.password);
-  if(!ismatching) {
-    return res.status(400).json({msg: "Incorrect password"});
-  }
+  try {
+    const { username, password } = req.body;
+    if (!username || !password)
+      return res.status(400).json({ msg: "Please enter all required fields" });
 
-  res.status(200).json({message: "User logged in successfully"});
-}
+    const existingUser = await User.findOne({ username });
+    if (!existingUser)
+      return res
+        .status(400)
+        .json({ msg: "User with this username does not exist" });
+
+    const isMatching = await bcrypt.compare(password, existingUser.password);
+    if (!isMatching) return res.status(400).json({ msg: "Incorrect password" });
+
+    // Generate JWT
+    const token = jwt.sign(
+      { id: existingUser._id, username: existingUser.username },
+      process.env.JWT_SECRET,
+      { expiresIn: "7d" } // optional expiry
+    );
+    // Send JWT as httpOnly cookie
+    res.cookie("token", token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "lax",
+    });
+    res.status(200).json({ user: existingUser });
+  } catch (err) {
+    console.error("Login error:", err);
+    res.status(500).json({ msg: "Internal Server Error" });
+  }
+};

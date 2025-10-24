@@ -6,7 +6,7 @@ import Signup from "./pages/Signup";
 import Login from "./pages/Login";
 import Home from "./pages/Home";
 import Whiteboard from "./pages/Whiteboard";
-import { ProtectedRoute, PublicRoute } from "./componenets/ProtectedRoute";
+import { ProtectedRoute, PublicRoute } from "./components/ProtectedRoute.jsx"
 
 function App() {
   const { token } = useSelector(state => state.auth);

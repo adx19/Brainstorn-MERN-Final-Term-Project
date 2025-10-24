@@ -1,8 +1,8 @@
 // src/pages/Landing.jsx
 import { Link } from "react-router-dom";
-import Header from "../componenets/Header";
-import Button from "../componenets/Button";
-import FeatureCard from "../componenets/FeatureCard";
+import Header from "../components/Header";
+import Button from "../components/Button";
+import FeatureCard from "../components/FeatureCard";
 
 const features = [
   { title: "Real-time Collaboration", description: "Work with your team simultaneously on a shared canvas.", color: "bg-indigo-100" },

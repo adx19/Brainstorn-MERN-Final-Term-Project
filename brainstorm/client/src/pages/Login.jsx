@@ -2,12 +2,16 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
-import { loginStart, loginSuccess, loginFailure } from "../redux/slice/authSlice";
-import Button from "../componenets/Button";
-import InputField from "../componenets/InputField";
-import Header from "../componenets/Header";
+import {
+  loginStart,
+  loginSuccess,
+  loginFailure,
+} from "../redux/slice/authSlice";
+import Button from "../components/Button";
+import InputField from "../components/InputField";
+import Header from "../components/Header";
 import { login } from "../../apiCalls/authCalls";
-import Toast from "../componenets/Toast";
+import Toast from "../components/Toast";
 
 const Login = () => {
   const [formData, setFormData] = useState({ username: "", password: "" });
@@ -22,18 +26,22 @@ const Login = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     dispatch(loginStart());
-    
+
     try {
       const data = await login(formData);
-      
-      // Dispatch Redux action with user data and token
-      dispatch(loginSuccess({
-        user: data.user,
-        token: data.token
-      }));
-      
-      setToast({ type: "success", message: "Login successful!" });
+
+      dispatch(
+        loginSuccess({
+          user: data.user,
+          token: data.token,
+        })
+      );
       navigate("/home");
+
+      setToast({ type: "success", message: "Login successful!" });
+
+      // Delay navigation slightly to ensure Redux state updates
+      
     } catch (err) {
       dispatch(loginFailure(err.msg || "Login failed"));
       setToast({ type: "error", message: err.msg || "Login failed" });
@@ -93,7 +101,7 @@ const Login = () => {
           </p>
         </div>
       </div>
-      
+
       {toast && (
         <Toast
           type={toast.type}

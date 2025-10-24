@@ -3,11 +3,11 @@ import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import { loginSuccess, loginFailure } from "../redux/slice/authSlice";
-import Header from "../componenets/Header";
-import InputField from "../componenets/InputField";
-import Button from "../componenets/Button";
+import Header from "../components/Header";
+import InputField from "../components/InputField";
+import Button from "../components/Button";
 import { signup } from "../../apiCalls/authCalls";
-import Toast from "../componenets/Toast";
+import Toast from "../components/Toast";
 
 const Signup = () => {
   const [toast, setToast] = useState(null);
