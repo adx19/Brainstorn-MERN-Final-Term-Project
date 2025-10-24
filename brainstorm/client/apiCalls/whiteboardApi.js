@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const BASE_URL = "http://localhost:2805/api/whiteboard";
+const BASE_URL = import.meta.env.VITE_API_BASE_URL+"/api/whiteboard";
 
 export const getBoards = async () => {
   const res = await axios.get(`${BASE_URL}/all`, { withCredentials: true });
