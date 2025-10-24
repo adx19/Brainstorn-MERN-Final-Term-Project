@@ -62,14 +62,6 @@ const Whiteboard = () => {
 
     const ctx = canvas.getContext("2d");
 
-    if (isEraser) {
-      ctx.globalCompositeOperation = "destination-out";
-      ctx.strokeStyle = "rgba(0,0,0,1)";
-    } else {
-      ctx.globalCompositeOperation = "source-over";
-      ctx.strokeStyle = brushColor;
-    }
-
     ctx.lineWidth = brushSize;
     ctx.lineJoin = "round";
     ctx.lineCap = "round";
