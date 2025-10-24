@@ -8,32 +8,42 @@ import { logout } from "../redux/slice/authSlice";
 const Home = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
-  const user = useSelector((state) => state.auth.user.user);
+  const authState = useSelector((state) => state.auth.user);
+  
+  // Extract user safely - handle different response structures
+  const user = authState?.user || authState;
+  
   const [boards, setBoards] = useState([]);
   const [tab, setTab] = useState("ongoing");
 
-  
-
-useEffect(() => {
-  if (!user) navigate("/login");
-  const fetchBoards = async () => {
-    try {
-      const data = await getBoards();
-      setBoards(data);
-    } catch (err) {
-      console.error(err);
+  useEffect(() => {
+    if (!user) {
+      navigate("/login");
+      return;
     }
-  };
-  fetchBoards();
-}, [user, navigate]);
+    
+    const fetchBoards = async () => {
+      try {
+        const data = await getBoards();
+        setBoards(data);
+      } catch (err) {
+        console.error(err);
+      }
+    };
+    fetchBoards();
+  }, [user, navigate]);
 
   const handleLogout = async () => {
     try {
-      await fetch("http://localhost:2805/api/auth/logout", { method: "POST", credentials: "include" });
-      dispatch(logout());
-      navigate("/login");
+      await fetch("http://localhost:2805/api/auth/logout", { 
+        method: "POST", 
+        credentials: "include" 
+      });
     } catch (err) {
       console.error(err);
+    } finally {
+      dispatch(logout());
+      navigate("/login");
     }
   };
 
@@ -48,14 +58,27 @@ useEffect(() => {
     setBoards((prev) => prev.map((b) => (b._id === id ? { ...b, status: updated.status } : b)));
   };
 
-  const statusColors = { ongoing: "bg-blue-100 text-blue-800", saved: "bg-green-100 text-green-800", completed: "bg-purple-100 text-purple-800" };
-  const statusIcons = { ongoing: AlertCircle, saved: Save, completed: CheckCircle };
+  const statusColors = { 
+    ongoing: "bg-blue-100 text-blue-800", 
+    saved: "bg-green-100 text-green-800", 
+    completed: "bg-purple-100 text-purple-800" 
+  };
+  
+  const statusIcons = { 
+    ongoing: AlertCircle, 
+    saved: Save, 
+    completed: CheckCircle 
+  };
+  
   const filtered = boards.filter((b) => b.status === tab || (!b.status && tab === "ongoing"));
   const stats = {
     ongoing: boards.filter((b) => !b.status || b.status === "ongoing").length,
     saved: boards.filter((b) => b.status === "saved").length,
     completed: boards.filter((b) => b.status === "completed").length,
   };
+
+  // Extract user name safely
+  const userName = user?.name || user?.username || "User";
 
   if (!user) return null;
 
@@ -65,7 +88,7 @@ useEffect(() => {
         <div className="max-w-7xl mx-auto flex justify-between items-center">
           <div>
             <h1 className="text-3xl font-bold text-indigo-600">Brainstorm</h1>
-            <p className="text-sm text-gray-600">Welcome, {user.name || user.username}</p>
+            <p className="text-sm text-gray-600">Welcome, {userName}</p>
           </div>
           <button onClick={handleLogout} className="flex gap-2 bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700">
             <LogOut size={20} /> Logout
@@ -76,7 +99,7 @@ useEffect(() => {
       <main className="max-w-7xl mx-auto px-4 py-8">
         {/* Create new board */}
         <div className="bg-gradient-to-r from-indigo-600 to-purple-600 text-white p-8 rounded-lg mb-8">
-          <h2 className="text-2xl font-bold mb-2">Welcome back, {user.name || user.username}! 👋</h2>
+          <h2 className="text-2xl font-bold mb-2">Welcome back, {userName}! 👋</h2>
           <button onClick={() => navigate("/whiteboard")} className="flex gap-2 bg-white text-indigo-600 px-4 py-2 rounded font-bold hover:bg-gray-100">
             <Plus size={20} /> New Board
           </button>

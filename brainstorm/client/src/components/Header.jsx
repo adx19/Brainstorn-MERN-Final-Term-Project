@@ -7,10 +7,24 @@ const Header = () => {
   const dispatch = useDispatch();
   const user = useSelector(state => state.auth.user);
 
-  const handleLogout = () => {
-    dispatch(logout());
-    navigate('/login');
+  const handleLogout = async () => {
+    try {
+      // Call backend logout endpoint
+      await fetch("http://localhost:2805/api/auth/logout", { 
+        method: "POST", 
+        credentials: "include" 
+      });
+    } catch (err) {
+      console.error("Logout error:", err);
+    } finally {
+      // Always clear Redux and localStorage
+      dispatch(logout());
+      navigate('/login');
+    }
   };
+
+  // Extract user info safely
+  const userName = user?.user?.name || user?.name || user?.user?.username || user?.username;
 
   return (
     <header className="flex justify-between items-center p-6 bg-gray-100 shadow">
@@ -24,7 +38,7 @@ const Header = () => {
           </>
         ) : (
           <>
-            <span className="text-gray-700 font-medium">Hello, {user.name || user.username}</span>
+            <span className="text-gray-700 font-medium">Hello, {userName}</span>
             <button onClick={handleLogout} className="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700">Logout</button>
           </>
         )}

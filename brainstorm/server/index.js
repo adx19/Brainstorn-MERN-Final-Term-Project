@@ -19,7 +19,7 @@ connectDB();
 // Middleware
 app.use(
   cors({
-    origin: "http://localhost:5173", // your React app's URL
+    origin: process.env.CLIENT_URL || "http://localhost:5173", // your React app's URL
     credentials: true, // allow cookies
   })
 );
