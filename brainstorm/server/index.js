@@ -23,6 +23,8 @@ app.use(
     credentials: true, // allow cookies
   })
 );
+
+console.log(process.env.CLIENT_URL);
 app.use(cookieParser());
 app.use(express.json({ limit: "10mb" })); // allow large JSON (for board data)
 app.use(express.urlencoded({ extended: true }));
