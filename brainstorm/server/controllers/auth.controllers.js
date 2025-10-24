@@ -36,11 +36,11 @@ export const login = async (req, res) => {
   if(!username || !password) {
     return res.status(400).json({msg: "Please enter all required fields"});
   }
-  const existinguser = User.findOne({username});
+  const existinguser = await User.findOne({username});
   if(!existinguser) {
     return res.status(400).json({msg: "User with this username does not exist"});
   }
-  const ismatching = await bcrypt.compare(password, existinguser[0].password);
+  const ismatching = await bcrypt.compare(password, existinguser.password);
   if(!ismatching) {
     return res.status(400).json({msg: "Incorrect password"});
   }
