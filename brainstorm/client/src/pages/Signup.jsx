@@ -1,6 +1,8 @@
 // src/pages/Signup.jsx
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import { useDispatch } from "react-redux";
+import { loginSuccess, loginFailure } from "../redux/slice/authSlice";
 import Header from "../componenets/Header";
 import InputField from "../componenets/InputField";
 import Button from "../componenets/Button";
@@ -9,7 +11,6 @@ import Toast from "../componenets/Toast";
 
 const Signup = () => {
   const [toast, setToast] = useState(null);
-  // React state for form inputs
   const [formData, setFormData] = useState({
     name: "",
     username: "",
@@ -22,15 +23,27 @@ const Signup = () => {
   };
 
   const navigate = useNavigate();
+  const dispatch = useDispatch();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const data = await signup(formData); // or show toast
-      // Optionally redirect to login page
-      navigate("/login");
+      const data = await signup(formData);
+      
+      // Optionally auto-login after signup
+      if (data.user && data.token) {
+        dispatch(loginSuccess({
+          user: data.user,
+          token: data.token
+        }));
+        navigate("/home");
+      } else {
+        setToast({ type: "success", message: "Signup successful! Please login." });
+        navigate("/login");
+      }
     } catch (err) {
-      alert(err.msg);
+      dispatch(loginFailure(err.msg || "Signup failed"));
+      setToast({ type: "error", message: err.msg || "Signup failed" });
     }
   };
 
@@ -79,7 +92,6 @@ const Signup = () => {
             <Button text="Sign Up" color="gradient" fullWidth />
           </form>
 
-          {/* Social Login */}
           <div className="mt-6">
             <p className="text-center text-gray-600 mb-4">Or sign up with</p>
             <div className="flex justify-center space-x-4">
@@ -97,6 +109,7 @@ const Signup = () => {
           </p>
         </div>
       </div>
+      
       {toast && (
         <Toast
           type={toast.type}

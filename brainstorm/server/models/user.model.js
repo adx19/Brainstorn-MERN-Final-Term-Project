@@ -1,3 +1,4 @@
+// server/models/user.model.js
 import mongoose from "mongoose";
 
 const userSchema = new mongoose.Schema({
@@ -5,56 +6,30 @@ const userSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
-
   username: {
     type: String,
     required: true,
+    unique: true,
   },
-
   email: {
     type: String,
     required: true,
     unique: true,
   },
-
   password: {
     type: String,
     required: true,
   },
-
-  ismale: {
-    type: Boolean,
-  },
-
-  phonenumber: {
-    type: Number,
-  },
-
   profilepic: {
     type: String,
     default: ''
   },
-
-  teams: [
-    {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "team",
-    }
-  ],
-  friends: [
-    {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "user"
-    }
-  ],
-
   savedBoards: [
     {
       type: mongoose.Schema.Types.ObjectId,
       ref: "board"
     }
   ],
-
   ongoingBoards: [
     {
       type: mongoose.Schema.Types.ObjectId,
@@ -67,8 +42,6 @@ const userSchema = new mongoose.Schema({
       ref: "board"
     }
   ],
-
-
 }, {
   timestamps: true,
 });

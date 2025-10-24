@@ -1,6 +1,8 @@
 // src/pages/Login.jsx
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import { useDispatch } from "react-redux";
+import { loginStart, loginSuccess, loginFailure } from "../redux/slice/authSlice";
 import Button from "../componenets/Button";
 import InputField from "../componenets/InputField";
 import Header from "../componenets/Header";
@@ -8,33 +10,38 @@ import { login } from "../../apiCalls/authCalls";
 import Toast from "../componenets/Toast";
 
 const Login = () => {
-  const [formData, setFormData] = useState({
-    username: "",
-    password: "",
-  });
+  const [formData, setFormData] = useState({ username: "", password: "" });
   const [toast, setToast] = useState(null);
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  const navigate = useNavigate();
-
   const handleSubmit = async (e) => {
     e.preventDefault();
+    dispatch(loginStart());
+    
     try {
       const data = await login(formData);
-      localStorage.setItem("token", data.token); // save JWT
-      localStorage.setItem("user", JSON.stringify(data.user)); // optional
-
-      navigate("/home"); // redirect to Home page
+      
+      // Dispatch Redux action with user data and token
+      dispatch(loginSuccess({
+        user: data.user,
+        token: data.token
+      }));
+      
+      setToast({ type: "success", message: "Login successful!" });
+      navigate("/home");
     } catch (err) {
-      alert(err.msg);
+      dispatch(loginFailure(err.msg || "Login failed"));
+      setToast({ type: "error", message: err.msg || "Login failed" });
     }
   };
 
   return (
-    <div className=" relative min-h-screen flex flex-col bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50">
+    <div className="relative min-h-screen flex flex-col bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50">
       <Header />
 
       <div className="flex flex-col justify-center items-center flex-1 px-4 py-16">
@@ -69,7 +76,6 @@ const Login = () => {
             <Button text="Login" color="gradient" fullWidth />
           </form>
 
-          {/* Social Login */}
           <div className="mt-6">
             <p className="text-center text-gray-600 mb-4">Or login with</p>
             <div className="flex justify-center space-x-4">
@@ -87,6 +93,7 @@ const Login = () => {
           </p>
         </div>
       </div>
+      
       {toast && (
         <Toast
           type={toast.type}
